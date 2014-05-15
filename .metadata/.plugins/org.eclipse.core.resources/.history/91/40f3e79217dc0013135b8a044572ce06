@@ -1,0 +1,15 @@
+package wssensor;
+
+import hawmetering.HAWMeteringWebservice;
+import hawmetering.HAWMeteringWebserviceService;
+
+public class Sensor {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		HAWMeteringWebserviceService service = new HAWMeteringWebserviceService();
+		HAWMeteringWebservice meter = service.getHAWMeteringWebservicePort();
+		meter.setValue(50);
+	}
+
+}

@@ -1,0 +1,11 @@
+package wssensor;
+
+public class testframe {
+
+	public static void main(String[] args) {
+		SensorWebservice sws = new SensorWebservice();
+		
+
+	}
+
+}

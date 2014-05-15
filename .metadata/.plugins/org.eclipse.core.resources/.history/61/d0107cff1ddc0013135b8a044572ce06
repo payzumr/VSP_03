@@ -1,0 +1,13 @@
+package wssensor;
+
+public class testframe {
+
+	public static void main(String[] args) {
+		SensorWebserviceService service = new SensorWebserviceService();
+		SensorWebservice sws = service.getSensorWebservicePort();
+		
+		sws.doSomething(25);
+
+	}
+
+}
