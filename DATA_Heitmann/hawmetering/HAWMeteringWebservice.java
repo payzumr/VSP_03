@@ -1,5 +1,5 @@
 
-package hawmeterproxy;
+package hawmetering;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -45,19 +45,6 @@ public interface HAWMeteringWebservice {
 
     /**
      * 
-     * @param min
-     * @param max
-     */
-    @WebMethod
-    @Action(input = "http://hawmetering/HAWMeteringWebservice/setRangeRequest", output = "http://hawmetering/HAWMeteringWebservice/setRangeResponse")
-    public void setRange(
-        @WebParam(name = "min", partName = "min")
-        double min,
-        @WebParam(name = "max", partName = "max")
-        double max);
-
-    /**
-     * 
      */
     @WebMethod
     @Action(input = "http://hawmetering/HAWMeteringWebservice/clearIntervalsRequest", output = "http://hawmetering/HAWMeteringWebservice/clearIntervalsResponse")
@@ -81,5 +68,18 @@ public interface HAWMeteringWebservice {
         double max,
         @WebParam(name = "color", partName = "color")
         WebColor color);
+
+    /**
+     * 
+     * @param min
+     * @param max
+     */
+    @WebMethod
+    @Action(input = "http://hawmetering/HAWMeteringWebservice/setRangeRequest", output = "http://hawmetering/HAWMeteringWebservice/setRangeResponse")
+    public void setRange(
+        @WebParam(name = "min", partName = "min")
+        double min,
+        @WebParam(name = "max", partName = "max")
+        double max);
 
 }

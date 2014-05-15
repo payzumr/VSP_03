@@ -1,5 +1,5 @@
 
-package hawmeterproxy;
+package hawmetering;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "HAWMeteringWebserviceService", targetNamespace = "http://hawmetering/", wsdlLocation = "http://localhost:9999/hawmetering/nw?WSDL")
+@WebServiceClient(name = "HAWMeteringWebserviceService", targetNamespace = "http://hawmetering/", wsdlLocation = "http://localhost:9999/hawmetering/nw?wsdl")
 public class HAWMeteringWebserviceService
     extends Service
 {
@@ -30,7 +30,7 @@ public class HAWMeteringWebserviceService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://localhost:9999/hawmetering/nw?WSDL");
+            url = new URL("http://localhost:9999/hawmetering/nw?wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
