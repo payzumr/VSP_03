@@ -1,2 +1,8 @@
 1400150680528	Rename package 'hawmetering.hawsensor'
 1400150688543	Delete element
+1400162978196	Rename field 'title'
+1400163259707	Rename field 'url'
+1400163277858	Rename local variable 'url'
+1400163382680	Rename field 'gaugeUrl'
+1400163390995	Rename local variable 'gaugeUrl'
+1400163559651	Rename method 'doSomething'

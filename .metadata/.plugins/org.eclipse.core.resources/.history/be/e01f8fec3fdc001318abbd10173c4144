@@ -1,0 +1,22 @@
+package wssensor;
+
+import javax.xml.ws.Endpoint;
+
+import hawmetering.HAWMeteringWebservice;
+import hawmetering.HAWMeteringWebserviceService;
+import hawmetering.WebColor;
+
+public class Sensor {
+
+	public static void main(String[] args) throws InterruptedException {
+		startWebservice(args);
+		
+	}
+
+	public static void startWebservice(String[] args){
+		//args[0] = meterURL, args[1] = meterName, args[2] = firstQuestionURL
+		SensorWebservice webservice = new SensorWebservice(args[0],args[1],args[2]);
+		System.out.println("sensor lauft...");
+        Endpoint.publish("http://0.0.0.0:8888/hawsensor/", webservice);
+	}
+}

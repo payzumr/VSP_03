@@ -9,12 +9,13 @@ import hawmetering.WebColor;
 public class Sensor {
 
 	public static void main(String[] args) throws InterruptedException {
-		startWebservice();
+		startWebservice(args);
 		
 	}
 
-	public static void startWebservice(){
-		SensorWebservice webservice = new SensorWebservice();
+	public static void startWebservice(String[] args){
+		//args[0] = meterURL, args[1] = meterName, args[2] = firstQuestionURL
+		SensorWebservice webservice = new SensorWebservice(args[0],args[1]);
 		System.out.println("sensor lauft...");
         Endpoint.publish("http://0.0.0.0:8888/hawsensor/", webservice);
 	}

@@ -1,45 +1,79 @@
 package wssensor;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import hawmetering.HAWMeteringWebservice;
 import hawmetering.HAWMeteringWebserviceService;
 import hawmetering.WebColor;
+import hawsensor.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.*;
+import javax.xml.namespace.QName;
 
 @WebService
 @SOAPBinding(style = Style.RPC)
 public class SensorWebservice {
-
-	public SensorWebservice() {
-
+	
+	URL meterURL, firstQuestion, koordinator = null;
+    URL baseUrl = HAWMeteringWebserviceService.class.getResource(".");
+    String sensorName="";
+    Map <URL, URL> assignments = new HashMap<URL, URL>(); //1. URL = meterURL 2. URL = sensorURL
+    
+    
+    public SensorWebservice(String meterURL, String title, String firstQuestion) {
+		try {
+			this.meterURL = new URL(baseUrl, meterURL);
+			this.firstQuestion = new URL(baseUrl, firstQuestion);
+			this.sensorName = title;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		initializeMeter();
+	}
+    
+    public SensorWebservice(String meterURL, String title) {
+		try {
+			this.meterURL = new URL(baseUrl, meterURL);
+			this.sensorName = title;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		initializeMeter();
 	}
 
-	public void doSomething(@WebParam(name = "value") double value) {
-		HAWMeteringWebserviceService service = new HAWMeteringWebserviceService();
-		HAWMeteringWebservice meter = service.getHAWMeteringWebservicePort();
-
-		meter.clearIntervals();
-		meter.setTitle("NerdWest");
-		WebColor wc = new WebColor();
-		wc.setGreen(255);
-		wc.setAlpha(150);
-		meter.setIntervals("low", 0, 50, wc);
-
-		meter.setValue(value);
+	public void initializeMeter() {
+		
+		if (firstQuestion == null) {
+			HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+			HAWMeteringWebservice meter = service.getHAWMeteringWebservicePort();
+			meter.setTitle(sensorName);
+			
+		}else {
+			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://hawmetering/", "firstQuestion"));
+			hawsensor.SensorWebservice ersterKoordinator = service.getSensorWebservicePort();
+			ersterKoordinator.getKoordinator();
+		}
+		
 	}
 
 	public void newTick() {
 
 	}
-
-	public/* Sensor */void getKoordinator() {
-
+	
+	public URL getKoordinator() {
+		URL temp = null;
+		return temp;
 	}
 
-	public boolean iWantThisGauges(/* Gauge liste */) {
+	public boolean iWantThisMeter(/* Gauge liste */) {
 		return false;// TODO
 	}
 
@@ -47,7 +81,7 @@ public class SensorWebservice {
 
 	}
 
-	public void setGaugeAssignments(/* Liste */) {
+	public void setMeterAssignments(/* Liste */) {
 
 	}
 	/* election */
