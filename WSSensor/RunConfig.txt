@@ -1,0 +1,1 @@
+java Sensor TestMeter localhost 9999 4 nw no sw so

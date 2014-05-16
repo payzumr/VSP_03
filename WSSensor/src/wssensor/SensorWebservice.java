@@ -72,10 +72,6 @@ public class SensorWebservice {
 				meter[i] = service.getHAWMeteringWebservicePort();
 				meter[i].setTitle(sensorName);
 			}
-			System.out.println("Namen gesetzt");
-			
-			
-			
 		}else {
 			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://hawsensor/", "firstQuestion"));
 			hawsensor.SensorWebservice ersterKoordinator = service.getSensorWebservicePort();
