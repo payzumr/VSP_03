@@ -7,7 +7,7 @@ import hawmetering.HAWMeteringWebserviceService;
 import hawmetering.WebColor;
 
 public class Sensor {
-
+	public static String myUrl = "http://0.0.0.0:8888/hawsensor/";
 	public static void main(String[] args) throws InterruptedException {
 		startWebservice(args);
 		
@@ -31,6 +31,7 @@ public class Sensor {
 		
 		System.out.println("sensor lauft...");
 		//+ args[0]
-        Endpoint.publish("http://0.0.0.0:8888/hawsensor/", webservice);
+        Endpoint.publish(myUrl + args[0], webservice);
+        webservice.initializeMeter(myUrl + args[0]);
 	}
 }

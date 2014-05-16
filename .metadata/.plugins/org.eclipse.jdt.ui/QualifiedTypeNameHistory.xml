@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="java.net.URL"/>
-<fullyQualifiedTypeName name="javax.xml.namespace.QName"/>
-<fullyQualifiedTypeName name="java.util.HashMap"/>
-<fullyQualifiedTypeName name="java.util.Map"/>
-<fullyQualifiedTypeName name="hawsensor.SensorWebserviceService"/>
-</qualifiedTypeNameHistroy>
