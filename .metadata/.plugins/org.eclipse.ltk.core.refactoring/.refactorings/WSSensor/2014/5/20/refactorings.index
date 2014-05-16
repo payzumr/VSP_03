@@ -6,3 +6,4 @@
 1400163382680	Rename field 'gaugeUrl'
 1400163390995	Rename local variable 'gaugeUrl'
 1400163559651	Rename method 'doSomething'
+1400229183858	Rename field 'baseUrl'

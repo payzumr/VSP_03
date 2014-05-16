@@ -20,16 +20,27 @@ import javax.xml.namespace.QName;
 @SOAPBinding(style = Style.RPC)
 public class SensorWebservice {
 	
-	URL meterURL, firstQuestion, koordinator = null;
-    URL baseUrl = HAWMeteringWebserviceService.class.getResource(".");
+	URL firstQuestion, myURL = null;
+	URL [] meterURL;
+	hawsensor.SensorWebservice koordinator;
+	//Meter welche der Sensor ansprechen will
+	hawmetering.HAWMeteringWebservice [] meter;
+	//0=nw, 1=no, 2=sw, 3=so / NULL = unbelegt
+	hawsensor.SensorWebservice [] sensor = new hawsensor.SensorWebservice[4];
+    URL baseUrlMeter = HAWMeteringWebserviceService.class.getResource(".");
+    URL baseUrlSensor = SensorWebserviceService.class.getResource(".");
     String sensorName="";
-    Map <URL, URL> assignments = new HashMap<URL, URL>(); //1. URL = meterURL 2. URL = sensorURL
     
-    
-    public SensorWebservice(String meterURL, String title, String firstQuestion) {
+    public SensorWebservice(String title, String[] meterURL,  String firstQuestion) {
 		try {
-			this.meterURL = new URL(baseUrl, meterURL);
-			this.firstQuestion = new URL(baseUrl, firstQuestion);
+			
+			this.meterURL = new URL[meterURL.length];
+			for (int i = 0; i < meterURL.length; i++) {
+				this.meterURL[i] = new URL(baseUrlMeter, meterURL[i]);
+			}
+
+			this.firstQuestion = new URL(baseUrlSensor, firstQuestion);
+			this.myURL = new URL(baseUrlSensor,title);
 			this.sensorName = title;
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -38,9 +49,12 @@ public class SensorWebservice {
 		initializeMeter();
 	}
     
-    public SensorWebservice(String meterURL, String title) {
+    public SensorWebservice(String title, String [] meterURL) {
 		try {
-			this.meterURL = new URL(baseUrl, meterURL);
+			this.meterURL = new URL[meterURL.length];
+			for (int i = 0; i < meterURL.length; i++) {
+				this.meterURL[i] = new URL(baseUrlMeter, meterURL[i]);
+			}
 			this.sensorName = title;
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -50,14 +64,20 @@ public class SensorWebservice {
 	}
 
 	public void initializeMeter() {
-		
+		meter = new HAWMeteringWebservice[meterURL.length];
 		if (firstQuestion == null) {
-			HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
-			HAWMeteringWebservice meter = service.getHAWMeteringWebservicePort();
-			meter.setTitle(sensorName);
+			
+			for (int i = 0; i < meterURL.length; i++) {
+				HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+				meter[i] = service.getHAWMeteringWebservicePort();
+				meter[i].setTitle(sensorName);
+			}
+			System.out.println("Namen gesetzt");
+			
+			
 			
 		}else {
-			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://hawmetering/", "firstQuestion"));
+			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://hawsensor/", "firstQuestion"));
 			hawsensor.SensorWebservice ersterKoordinator = service.getSensorWebservicePort();
 			ersterKoordinator.getKoordinator();
 		}
@@ -68,21 +88,29 @@ public class SensorWebservice {
 
 	}
 	
-	public URL getKoordinator() {
-		URL temp = null;
+	//hawsensor.SensorWebservice
+	public boolean getKoordinator() {
+		boolean temp = false;
+		
+		hawsensor.SensorWebserviceService service = new SensorWebserviceService(myURL, new QName("http://hawsensor/", "Koordinator"));
+		koordinator = service.getSensorWebservicePort();
+		
 		return temp;
 	}
-
-	public boolean iWantThisMeter(/* Gauge liste */) {
-		return false;// TODO
-	}
+	//
+//	public boolean iWantThisMeter(@WebParam(name = "meter") HAWMeteringWebservice [] meter) {
+//		return false;// TODO
+//	}
 
 	public void registerSensor() {
 
 	}
 
-	public void setMeterAssignments(/* Liste */) {
-
-	}
+//	public void setMeterAssignments(@WebParam(name = "sensor") hawsensor.SensorWebservice [] sensor) {
+//
+//	}
 	/* election */
+	public void triggerSensors() {
+		
+	}
 }

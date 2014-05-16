@@ -8,7 +8,7 @@ public class testframe {
 		hawsensor.SensorWebserviceService service = new SensorWebserviceService();
 		hawsensor.SensorWebservice sws = service.getSensorWebservicePort();
 		
-		sws.doSomething(50);
+		//sws.doSomething(50);
 
 	}
 

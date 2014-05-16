@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="wssensor.Sensor"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:9999/hawmetering/so?WSDL penisMeter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="TestMeter 4 http://localhost:9999/hawmetering/nw?WSDL http://localhost:9999/hawmetering/no?WSDL http://localhost:9999/hawmetering/sw?WSDL http://localhost:9999/hawmetering/so?WSDL"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="WSSensor"/>
 </launchConfiguration>
