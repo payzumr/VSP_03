@@ -76,6 +76,7 @@ public class SensorWebservice {
 				HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
 				meter[i] = service.getHAWMeteringWebservicePort();
 				meter[i].setTitle(sensorName);
+				triggerSensors();
 			}
 		}else {
 			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://hawsensor/", "firstQuestion"));
