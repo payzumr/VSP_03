@@ -2,8 +2,13 @@ package wssensor;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import hawmetering.HAWMeteringWebservice;
 import hawmetering.HAWMeteringWebserviceService;
@@ -81,7 +86,15 @@ public class SensorWebservice {
 	}
 
 	public void newTick() {
-
+		
+		long lTicks = new Date().getTime();
+		int messwert = ((int) (lTicks % 20000)) / 100;
+		if (messwert > 100) {
+			messwert = 200 - messwert;
+		}
+		for (int i = 0; i < meter.length; i++) {
+			meter[i].setValue(messwert);
+		}
 	}
 	
 	//hawsensor.SensorWebservice
@@ -107,6 +120,33 @@ public class SensorWebservice {
 //	}
 	/* election */
 	public void triggerSensors() {
-		
+	        final ScheduledExecutorService scheduler =
+	                Executors.newScheduledThreadPool(1);
+
+	            final Runnable ticker = new Runnable() {
+	                @Override
+	                public void run() {
+	                	for (int i = 0; i < sensor.length; i++) {
+							if(sensor[i] != null){
+								sensor[i].newTick();
+							}
+							newTick();
+	                	}
+	               }
+	            };
+	            
+	          //Starten:
+		        final ScheduledFuture<?> tickerHandle =
+		            scheduler.scheduleAtFixedRate(ticker, 2000 - new Date().getTime() % 2000, 2000, TimeUnit.MILLISECONDS);
+
+		        
+		        scheduler.schedule(new Runnable() {
+		        	@Override
+
+		            public void run() {
+		                tickerHandle.cancel(true);
+		                scheduler.shutdown();
+		            }
+		        }, 20, TimeUnit.SECONDS);
+		     }    
 	}
-}
