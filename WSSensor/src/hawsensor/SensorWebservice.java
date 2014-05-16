@@ -8,7 +8,6 @@ import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.Action;
-import net.java.dev.jaxb.array.StringArray;
 
 
 /**
@@ -20,18 +19,20 @@ import net.java.dev.jaxb.array.StringArray;
 @WebService(name = "SensorWebservice", targetNamespace = "http://wssensor/")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 @XmlSeeAlso({
-    net.java.dev.jaxb.array.ObjectFactory.class,
-    hawsensor.ObjectFactory.class
+    ObjectFactory.class
 })
 public interface SensorWebservice {
 
 
     /**
      * 
+     * @param arg0
      */
     @WebMethod
     @Action(input = "http://wssensor/SensorWebservice/initializeMeterRequest", output = "http://wssensor/SensorWebservice/initializeMeterResponse")
-    public void initializeMeter();
+    public void initializeMeter(
+        @WebParam(name = "arg0", partName = "arg0")
+        String arg0);
 
     /**
      * 
@@ -69,7 +70,7 @@ public interface SensorWebservice {
     @Action(input = "http://wssensor/SensorWebservice/registerSensorRequest", output = "http://wssensor/SensorWebservice/registerSensorResponse")
     public boolean registerSensor(
         @WebParam(name = "meter", partName = "meter")
-        StringArray meter,
+        ArrayList meter,
         @WebParam(name = "sensor", partName = "sensor")
         String sensor);
 
