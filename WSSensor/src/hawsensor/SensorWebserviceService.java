@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "SensorWebserviceService", targetNamespace = "http://wssensor/", wsdlLocation = "http://localhost:8888/hawsensor/TestMeter?wsdl")
+@WebServiceClient(name = "SensorWebserviceService", targetNamespace = "http://wssensor/", wsdlLocation = "http://localhost:8888/hawsensor/?wsdl")
 public class SensorWebserviceService
     extends Service
 {
@@ -30,7 +30,7 @@ public class SensorWebserviceService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://localhost:8888/hawsensor/TestMeter?wsdl");
+            url = new URL("http://localhost:8888/hawsensor/?wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
