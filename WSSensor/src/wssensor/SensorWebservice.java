@@ -22,6 +22,8 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.*;
 import javax.xml.namespace.QName;
 
+import net.java.dev.jaxb.array.StringArray;
+
 @WebService
 @SOAPBinding(style = Style.RPC)
 public class SensorWebservice {
@@ -69,7 +71,8 @@ public class SensorWebservice {
 		}
 	}
 
-	public void initializeMeter(String myUrl) {
+	public boolean initializeMeter(String myUrl) {
+		boolean retValue = true;
 		try {
 			this.myURL = new URL(baseUrlSensor, myUrl);
 		} catch (MalformedURLException e1) {
@@ -90,13 +93,32 @@ public class SensorWebservice {
 		} else {
 			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://wssensor/", "SensorWebserviceService"));
 			hawsensor.SensorWebservice ersterKoordinator = service.getSensorWebservicePort();
+			StringArray wantedMetersCompType = new StringArray();
+			for (int i = 0; i < wantedMeters.length; i++) {
+				wantedMetersCompType.getItem().add(wantedMeters[i]);
+			}
 			try {
-				URL koor = new URL(SensorWebserviceService.class.getResource("."), ersterKoordinator.getKoordinator());
+				URL koorUrl = new URL(SensorWebserviceService.class.getResource("."), ersterKoordinator.getKoordinator());
+				hawsensor.SensorWebserviceService koorService = new SensorWebserviceService(koorUrl, new QName("http://wssensor/", "SensorWebserviceService"));
+				hawsensor.SensorWebservice koor = koorService.getSensorWebservicePort();
+				System.out.println("registerSensor:");
+				if(koor.registerSensor(wantedMetersCompType, myUrl.toString())){
+					for (int i = 0; i < meterURL.length; i++) {
+						HAWMeteringWebserviceService service1 = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+						meter[i] = service1.getHAWMeteringWebservicePort();
+						meter[i].setTitle(sensorName);
+					}
+				}else{
+					retValue = false;
+				}
+				
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		
+		return retValue;
 
 	}
 
@@ -118,6 +140,7 @@ public class SensorWebservice {
 	}
 
 	public boolean registerSensor(@WebParam(name = "meter") String[] meter, @WebParam(name = "sensor") String sensor) {
+		System.out.println("Sensor: " + sensor);
 		boolean retValue = true;
 		for (int i = 0; i < meter.length; i++) {
 			if (assignedSensor.containsKey(meter[i])) {
@@ -174,6 +197,6 @@ public class SensorWebservice {
 				tickerHandle.cancel(true);
 				scheduler.shutdown();
 			}
-		}, 20, TimeUnit.SECONDS);
+		}, 120, TimeUnit.SECONDS);
 	}
 }
