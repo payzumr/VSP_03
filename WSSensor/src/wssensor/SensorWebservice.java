@@ -35,7 +35,7 @@ public class SensorWebservice {
 	hawmetering.HAWMeteringWebservice[] meter;
 	// NULL = unbelegt
 	HashMap<String, hawsensor.SensorWebservice> assignedSensor = new HashMap<String, hawsensor.SensorWebservice>();
-	ArrayList<hawsensor.SensorWebservice> sensors = new ArrayList<hawsensor.SensorWebservice>();
+	HashMap<hawsensor.SensorWebservice, String[]> sensors = new HashMap<hawsensor.SensorWebservice, String[]>();
 	String[] wantedMeters;
 	URL baseUrlMeter = HAWMeteringWebserviceService.class.getResource(".");
 	URL baseUrlSensor = SensorWebserviceService.class.getResource(".");
@@ -52,7 +52,6 @@ public class SensorWebservice {
 			this.firstQuestion = new URL(baseUrlSensor, firstQuestion);
 			this.sensorName = title;
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -66,7 +65,6 @@ public class SensorWebservice {
 			}
 			this.sensorName = title;
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -84,7 +82,7 @@ public class SensorWebservice {
 			for (int i = 0; i < meterURL.length; i++) {
 				HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
 				meter[i] = service.getHAWMeteringWebservicePort();
-				meter[i].setTitle(sensorName);
+				meter[i].setTitle(sensorName + "-K");
 				triggerSensors();
 			}
 			hawsensor.SensorWebserviceService service = new SensorWebserviceService(myURL, new QName("http://wssensor/", "SensorWebserviceService"));
@@ -113,7 +111,6 @@ public class SensorWebservice {
 				}
 				
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -156,10 +153,10 @@ public class SensorWebservice {
 				for (int j = 0; j < meter.length; j++) {
 					assignedSensor.put(meter[j], sws);
 				}
-				sensors.add(sws);
+				
+				sensors.put(sws,meter);
 
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -167,7 +164,7 @@ public class SensorWebservice {
 		return retValue;
 	}
 
-	public void setMeterAssignments(@WebParam(name = "sensor") HashMap<String, hawsensor.SensorWebservice> assignedSensors, ArrayList<hawsensor.SensorWebservice> sensors) {
+	public void setMeterAssignments(@WebParam(name = "sensor") HashMap<String, hawsensor.SensorWebservice> assignedSensors, HashMap<hawsensor.SensorWebservice, String[]> sensors) {
 		this.assignedSensor = assignedSensors;
 		this.sensors = sensors;
 	}
@@ -179,8 +176,29 @@ public class SensorWebservice {
 		final Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
-				for (hawsensor.SensorWebservice e : sensors) {
-					e.newTick();
+				for (hawsensor.SensorWebservice e : sensors.keySet()) {
+					try{
+						e.newTick();
+					}
+					catch(Exception ex){
+						String[] tmp = sensors.get(e);
+						for (int i = 0; i < tmp.length; i++) {
+							
+							try {
+								hawmetering.HAWMeteringWebservice deleteService;
+								URL deleteUrl;
+								deleteUrl = new URL(baseUrlMeter, tmp[i]);
+								HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(deleteUrl, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+								deleteService = service.getHAWMeteringWebservicePort();
+								deleteService.setTitle("free");
+								deleteService.setValue(0);
+								assignedSensor.remove(tmp[i]);
+								sensors.remove(e);
+							} catch (MalformedURLException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}
 				}
 
 				newTick();
@@ -197,6 +215,6 @@ public class SensorWebservice {
 				tickerHandle.cancel(true);
 				scheduler.shutdown();
 			}
-		}, 120, TimeUnit.SECONDS);
+		}, 600, TimeUnit.SECONDS);
 	}
 }
