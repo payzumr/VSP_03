@@ -17,18 +17,15 @@ public class Sensor {
 
 	public static void startWebservice(String[] args){
 		//args[0] = MeterName, args[1] = Adresse des Meters (z.b. localhost), args [2]= Port des Meters
-		//args[4] = Anzahl an Meter, args[5] Array von Namen der Meter, args[6] = firstQuestionURL
+		//args [3] eigener Port args[4] meter, args [5] = firstQuestionURL
 		wssensor.SensorWebservice webservice;
-		String [] meterURLS = new String [Integer.parseInt(args[4])];
-		for (int i = 0; i < meterURLS.length; i++) {
-			meterURLS[i] = "http://" + args[1] + ":" + args[2] + "/hawmetering/" + args[i+5] + "?WSDL";
-		}
-		if (args.length>5+meterURLS.length) {
+		String meterURL = "http://" + args[1] + ":" + args[2] + "/hawmetering/" + args[4] + "?WSDL";
+		if (args.length>5) {
 			System.out.println("mit firstQuestion");
-			webservice = new SensorWebservice(args[0], meterURLS, args[5+meterURLS.length]);	
+			webservice = new SensorWebservice(args[0], meterURL, args[5]);	
 		}else {
 			System.out.println("ohne firstQuestion");
-			webservice = new SensorWebservice(args[0], meterURLS);
+			webservice = new SensorWebservice(args[0], meterURL);
 		}
 		
 		System.out.println("sensor lauft...");
@@ -37,5 +34,6 @@ public class Sensor {
         	System.out.println("ERROR");
         	System.exit(0);
         }
+        
 	}
 }

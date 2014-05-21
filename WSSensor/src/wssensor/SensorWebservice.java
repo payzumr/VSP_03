@@ -22,48 +22,39 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.*;
 import javax.xml.namespace.QName;
 
-import net.java.dev.jaxb.array.StringArray;
-
 @WebService
 @SOAPBinding(style = Style.RPC)
 public class SensorWebservice {
 
-	URL firstQuestion, myURL = null;
-	URL[] meterURL;
-	hawsensor.SensorWebservice koordinator;
+	URL firstQuestion, myURL , koordinatorUrl, meterURL = null;
+	hawsensor.SensorWebservice koordinator, ichbins;
 	// Meter welche der Sensor ansprechen will
-	hawmetering.HAWMeteringWebservice[] meter;
+	hawmetering.HAWMeteringWebservice meterService;
 	// NULL = unbelegt
 	HashMap<String, hawsensor.SensorWebservice> assignedSensor = new HashMap<String, hawsensor.SensorWebservice>();
-	HashMap<hawsensor.SensorWebservice, String[]> sensors = new HashMap<hawsensor.SensorWebservice, String[]>();
-	String[] wantedMeters;
+	HashMap<hawsensor.SensorWebservice, String> sensors = new HashMap<hawsensor.SensorWebservice, String>();
+	String myMeter;
 	URL baseUrlMeter = HAWMeteringWebserviceService.class.getResource(".");
 	URL baseUrlSensor = SensorWebserviceService.class.getResource(".");
-	String sensorName = "";
+	String sensorTitle = "";
 
-	public SensorWebservice(String title, String[] meterURL, String firstQuestion) {
+	public SensorWebservice(String title, String meterURL, String firstQuestion) {
 		try {
-			this.wantedMeters = meterURL;
-			this.meterURL = new URL[meterURL.length];
-			for (int i = 0; i < meterURL.length; i++) {
-				this.meterURL[i] = new URL(baseUrlMeter, meterURL[i]);
-			}
+			this.myMeter = meterURL;
+			this.meterURL = new URL(baseUrlMeter, meterURL);
 
 			this.firstQuestion = new URL(baseUrlSensor, firstQuestion);
-			this.sensorName = title;
+			this.sensorTitle = title;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public SensorWebservice(String title, String[] meterURL) {
+	public SensorWebservice(String title, String meterURL) {
 		try {
-			this.wantedMeters = meterURL;
-			this.meterURL = new URL[meterURL.length];
-			for (int i = 0; i < meterURL.length; i++) {
-				this.meterURL[i] = new URL(baseUrlMeter, meterURL[i]);
-			}
-			this.sensorName = title;
+			this.myMeter = meterURL;
+			this.meterURL = new URL(baseUrlMeter, meterURL);
+			this.sensorTitle = title;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -76,36 +67,38 @@ public class SensorWebservice {
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
 		}
-		meter = new HAWMeteringWebservice[meterURL.length];
 		if (firstQuestion == null) {
+			koordinatorUrl = myURL;
+			HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+			meterService = service.getHAWMeteringWebservicePort();
+			meterService.setTitle(sensorTitle + "-K");
+			triggerSensors();
+			
+			hawsensor.SensorWebserviceService service2 = new SensorWebserviceService(myURL, new QName("http://wssensor/", "SensorWebserviceService"));
+			koordinator = service2.getSensorWebservicePort();
 
-			for (int i = 0; i < meterURL.length; i++) {
-				HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
-				meter[i] = service.getHAWMeteringWebservicePort();
-				meter[i].setTitle(sensorName + "-K");
-				triggerSensors();
-			}
-			hawsensor.SensorWebserviceService service = new SensorWebserviceService(myURL, new QName("http://wssensor/", "SensorWebserviceService"));
-			koordinator = service.getSensorWebservicePort();
+			sensors.put(koordinator, myMeter);
 			
 		} else {
 			hawsensor.SensorWebserviceService service = new SensorWebserviceService(firstQuestion, new QName("http://wssensor/", "SensorWebserviceService"));
 			hawsensor.SensorWebservice ersterKoordinator = service.getSensorWebservicePort();
-			StringArray wantedMetersCompType = new StringArray();
-			for (int i = 0; i < wantedMeters.length; i++) {
-				wantedMetersCompType.getItem().add(wantedMeters[i]);
-			}
+
 			try {
 				URL koorUrl = new URL(SensorWebserviceService.class.getResource("."), ersterKoordinator.getKoordinator());
+				koordinatorUrl = koorUrl;
 				hawsensor.SensorWebserviceService koorService = new SensorWebserviceService(koorUrl, new QName("http://wssensor/", "SensorWebserviceService"));
 				hawsensor.SensorWebservice koor = koorService.getSensorWebservicePort();
 				System.out.println("registerSensor:");
-				if(koor.registerSensor(wantedMetersCompType, myUrl.toString())){
-					for (int i = 0; i < meterURL.length; i++) {
-						HAWMeteringWebserviceService service1 = new HAWMeteringWebserviceService(meterURL[i], new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
-						meter[i] = service1.getHAWMeteringWebservicePort();
-						meter[i].setTitle(sensorName);
-					}
+				
+				if(koor.registerSensor(myMeter, myUrl.toString())){
+
+						HAWMeteringWebserviceService service1 = new HAWMeteringWebserviceService(meterURL, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+						meterService = service1.getHAWMeteringWebservicePort();
+						hawsensor.SensorWebserviceService service2 = new SensorWebserviceService(myURL, new QName("http://wssensor/", "SensorWebserviceService"));
+						ichbins = service2.getSensorWebservicePort();
+						meterService.setTitle(sensorTitle);
+						sensors.put(ichbins,myMeter);
+
 				}else{
 					retValue = false;
 				}
@@ -126,35 +119,41 @@ public class SensorWebservice {
 		if (messwert > 100) {
 			messwert = 200 - messwert;
 		}
-		for (int i = 0; i < meter.length; i++) {
-			meter[i].setValue(messwert);
+		meterService.setValue(messwert);
+		System.out.println("------------------------------------------------------");
+		//Ausgabe zum gucken ob alle den richtigen wert haben
+		for (hawsensor.SensorWebservice e : sensors.keySet()) {
+			System.out.println(e.toString());
 		}
+		
+		
 	}
 
 	public URL getKoordinator() {
 		
-		return myURL;
+		return koordinatorUrl;
 	}
 
-	public boolean registerSensor(@WebParam(name = "meter") String[] meter, @WebParam(name = "sensor") String sensor) {
+	public boolean registerSensor(@WebParam(name = "meter") String meter, @WebParam(name = "sensor") String sensor) {
 		System.out.println("Sensor: " + sensor);
 		boolean retValue = true;
-		for (int i = 0; i < meter.length; i++) {
-			if (assignedSensor.containsKey(meter[i])) {
-				retValue = false;
-			}
+		for (hawsensor.SensorWebservice e : sensors.keySet()) {
+			
+			if(sensors.get(e).equals(meter)) retValue= false;
 		}
+
 		if (retValue) {
 			URL tmpurl;
 			try {
 				tmpurl = new URL(sensor);
 				hawsensor.SensorWebserviceService service = new SensorWebserviceService(tmpurl, new QName("http://wssensor/", "SensorWebserviceService"));
 				hawsensor.SensorWebservice sws = service.getSensorWebservicePort();
-				for (int j = 0; j < meter.length; j++) {
-					assignedSensor.put(meter[j], sws);
-				}
+				System.out.println("Neuer Sensor hinzugefügt");
+				//Stringarray Complex herstellen
 				
-				sensors.put(sws,meter);
+				for (hawsensor.SensorWebservice serv : sensors.keySet()) {
+					serv.setMeterAssignments(sensor, meter);
+				}
 
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
@@ -164,9 +163,24 @@ public class SensorWebservice {
 		return retValue;
 	}
 
-	public void setMeterAssignments(@WebParam(name = "sensor") HashMap<String, hawsensor.SensorWebservice> assignedSensors, HashMap<hawsensor.SensorWebservice, String[]> sensors) {
-		this.assignedSensor = assignedSensors;
-		this.sensors = sensors;
+	public void setMeterAssignments(@WebParam(name = "sensor") String sensor,@WebParam(name = "meter")  String meter) {
+		URL tmpurl;
+		try {
+			tmpurl = new URL(sensor);
+			hawsensor.SensorWebserviceService service = new SensorWebserviceService(tmpurl, new QName("http://wssensor/", "SensorWebserviceService"));
+			hawsensor.SensorWebservice sws = service.getSensorWebservicePort();
+		
+			sensors.put(sws,meter);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("setMeterAssigments");
+	}
+	
+	public void removeMeterAssignments(@WebParam(name = "sensor") String sensor) {
+
+		sensors.remove(sensor);
+		System.out.println("removeMeterAssigments");
 	}
 
 	/* election */
@@ -176,31 +190,38 @@ public class SensorWebservice {
 		final Runnable ticker = new Runnable() {
 			@Override
 			public void run() {
-				for (hawsensor.SensorWebservice e : sensors.keySet()) {
+				ArrayList<hawsensor.SensorWebservice> deleteList = new ArrayList<hawsensor.SensorWebservice>();
+ 				for (hawsensor.SensorWebservice e : sensors.keySet()) {
 					try{
 						e.newTick();
 					}
 					catch(Exception ex){
-						String[] tmp = sensors.get(e);
-						for (int i = 0; i < tmp.length; i++) {
+						String tmp = sensors.get(e);
 							
 							try {
 								hawmetering.HAWMeteringWebservice deleteService;
 								URL deleteUrl;
-								deleteUrl = new URL(baseUrlMeter, tmp[i]);
+								deleteUrl = new URL(baseUrlMeter, tmp);
 								HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(deleteUrl, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
 								deleteService = service.getHAWMeteringWebservicePort();
 								deleteService.setTitle("free");
 								deleteService.setValue(0);
-								assignedSensor.remove(tmp[i]);
-								sensors.remove(e);
+								deleteList.add(e);
 							} catch (MalformedURLException e1) {
 								e1.printStackTrace();
 							}
-						}
 					}
 				}
-
+ 				for (hawsensor.SensorWebservice d : deleteList) {
+ 					sensors.remove(d);
+ 					for (hawsensor.SensorWebservice e : sensors.keySet()) {
+ 							e.removeMeterAssignments(sensors.get(e));
+ 					}
+				}
+ 				
+ 				
+ 				
+ 				deleteList.clear();
 				newTick();
 
 			}

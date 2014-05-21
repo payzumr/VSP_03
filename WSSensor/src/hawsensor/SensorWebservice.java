@@ -6,9 +6,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.Action;
-import net.java.dev.jaxb.array.StringArray;
 
 
 /**
@@ -19,26 +17,21 @@ import net.java.dev.jaxb.array.StringArray;
  */
 @WebService(name = "SensorWebservice", targetNamespace = "http://wssensor/")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
-@XmlSeeAlso({
-    net.java.dev.jaxb.array.ObjectFactory.class,
-    hawsensor.ObjectFactory.class
-})
 public interface SensorWebservice {
 
 
     /**
      * 
+     * @param arg0
+     * @return
+     *     returns boolean
      */
     @WebMethod
+    @WebResult(partName = "return")
     @Action(input = "http://wssensor/SensorWebservice/initializeMeterRequest", output = "http://wssensor/SensorWebservice/initializeMeterResponse")
-    public void initializeMeter();
-
-    /**
-     * 
-     */
-    @WebMethod
-    @Action(input = "http://wssensor/SensorWebservice/triggerSensorsRequest", output = "http://wssensor/SensorWebservice/triggerSensorsResponse")
-    public void triggerSensors();
+    public boolean initializeMeter(
+        @WebParam(name = "arg0", partName = "arg0")
+        String arg0);
 
     /**
      * 
@@ -69,21 +62,38 @@ public interface SensorWebservice {
     @Action(input = "http://wssensor/SensorWebservice/registerSensorRequest", output = "http://wssensor/SensorWebservice/registerSensorResponse")
     public boolean registerSensor(
         @WebParam(name = "meter", partName = "meter")
-        StringArray meter,
+        String meter,
         @WebParam(name = "sensor", partName = "sensor")
         String sensor);
 
     /**
      * 
-     * @param arg1
+     * @param meter
      * @param sensor
      */
     @WebMethod
     @Action(input = "http://wssensor/SensorWebservice/setMeterAssignmentsRequest", output = "http://wssensor/SensorWebservice/setMeterAssignmentsResponse")
     public void setMeterAssignments(
         @WebParam(name = "sensor", partName = "sensor")
-        HashMap sensor,
-        @WebParam(name = "arg1", partName = "arg1")
-        ArrayList arg1);
+        String sensor,
+        @WebParam(name = "meter", partName = "meter")
+        String meter);
+
+    /**
+     * 
+     * @param sensor
+     */
+    @WebMethod
+    @Action(input = "http://wssensor/SensorWebservice/removeMeterAssignmentsRequest", output = "http://wssensor/SensorWebservice/removeMeterAssignmentsResponse")
+    public void removeMeterAssignments(
+        @WebParam(name = "sensor", partName = "sensor")
+        String sensor);
+
+    /**
+     * 
+     */
+    @WebMethod
+    @Action(input = "http://wssensor/SensorWebservice/triggerSensorsRequest", output = "http://wssensor/SensorWebservice/triggerSensorsResponse")
+    public void triggerSensors();
 
 }
