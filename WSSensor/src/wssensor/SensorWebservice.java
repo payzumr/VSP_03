@@ -194,8 +194,6 @@ public class SensorWebservice {
 		hawsensor.SensorWebserviceService service;
 		hawsensor.SensorWebservice sws;
 		
-		System.out.println(sensor.length);
-		
 		//Trage alle uebergebenen Assignments ein
 		for (int i = 0; i < sensor.length; i++) {
 			try {
@@ -213,12 +211,6 @@ public class SensorWebservice {
 		}
 	}
 	
-	public void removeMeterAssignments(@WebParam(name = "sensor") String sensor) {
-
-		assignments.remove(sensor);
-		System.out.println("removeMeterAssigments");
-	}
-
 	/* election */
 	public void triggerSensors() {
 		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -253,9 +245,6 @@ public class SensorWebservice {
  				if (!deleteList.isEmpty()) {
  					for (hawsensor.SensorWebservice d : deleteList) {
  	 					assignments.remove(d);
- 	 					for (hawsensor.SensorWebservice e : assignments.keySet()) {
- 	 							e.removeMeterAssignments(assignments.get(e));
- 	 					}
  					}
  					//wenn geloescht dann informiere andere ueber aktuellenStand
  					uebertrageAktuellenStand(); 					

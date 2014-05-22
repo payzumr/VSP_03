@@ -41,6 +41,13 @@ public interface SensorWebservice {
 
     /**
      * 
+     */
+    @WebMethod
+    @Action(input = "http://wssensor/SensorWebservice/newTickRequest", output = "http://wssensor/SensorWebservice/newTickResponse")
+    public void newTick();
+
+    /**
+     * 
      * @return
      *     returns java.lang.String
      */
@@ -48,13 +55,6 @@ public interface SensorWebservice {
     @WebResult(partName = "return")
     @Action(input = "http://wssensor/SensorWebservice/getMyUrlRequest", output = "http://wssensor/SensorWebservice/getMyUrlResponse")
     public String getMyUrl();
-
-    /**
-     * 
-     */
-    @WebMethod
-    @Action(input = "http://wssensor/SensorWebservice/newTickRequest", output = "http://wssensor/SensorWebservice/newTickResponse")
-    public void newTick();
 
     /**
      * 
@@ -76,35 +76,8 @@ public interface SensorWebservice {
      * 
      */
     @WebMethod
-    @Action(input = "http://wssensor/SensorWebservice/triggerSensorsRequest", output = "http://wssensor/SensorWebservice/triggerSensorsResponse")
-    public void triggerSensors();
-
-    /**
-     * 
-     */
-    @WebMethod
     @Action(input = "http://wssensor/SensorWebservice/uebertrageAktuellenStandRequest", output = "http://wssensor/SensorWebservice/uebertrageAktuellenStandResponse")
     public void uebertrageAktuellenStand();
-
-    /**
-     * 
-     * @return
-     *     returns java.lang.String
-     */
-    @WebMethod
-    @WebResult(partName = "return")
-    @Action(input = "http://wssensor/SensorWebservice/getKoordinatorRequest", output = "http://wssensor/SensorWebservice/getKoordinatorResponse")
-    public String getKoordinator();
-
-    /**
-     * 
-     * @param sensor
-     */
-    @WebMethod
-    @Action(input = "http://wssensor/SensorWebservice/removeMeterAssignmentsRequest", output = "http://wssensor/SensorWebservice/removeMeterAssignmentsResponse")
-    public void removeMeterAssignments(
-        @WebParam(name = "sensor", partName = "sensor")
-        String sensor);
 
     /**
      * 
@@ -118,5 +91,22 @@ public interface SensorWebservice {
         StringArray sensor,
         @WebParam(name = "meter", partName = "meter")
         StringArray meter);
+
+    /**
+     * 
+     * @return
+     *     returns java.lang.String
+     */
+    @WebMethod
+    @WebResult(partName = "return")
+    @Action(input = "http://wssensor/SensorWebservice/getKoordinatorRequest", output = "http://wssensor/SensorWebservice/getKoordinatorResponse")
+    public String getKoordinator();
+
+    /**
+     * 
+     */
+    @WebMethod
+    @Action(input = "http://wssensor/SensorWebservice/triggerSensorsRequest", output = "http://wssensor/SensorWebservice/triggerSensorsResponse")
+    public void triggerSensors();
 
 }
