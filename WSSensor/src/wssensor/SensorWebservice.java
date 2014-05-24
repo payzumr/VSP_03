@@ -103,7 +103,7 @@ public class SensorWebservice {
 					hawsensor.SensorWebserviceService service2 = new SensorWebserviceService(myURL, new QName("http://wssensor/", "SensorWebserviceService"));
 					ichbins = service2.getSensorWebservicePort();
 					meterService.setTitle(sensorTitle);
-					
+
 					startTickChecker();
 				} else {
 					retValue = false;
@@ -225,6 +225,7 @@ public class SensorWebservice {
 	public void triggerSensors() {
 		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+		meterService.setTitle(sensorTitle + "-K");
 		final Runnable ticker = new Runnable() {
 			int tickSeqN = 0;
 
@@ -291,9 +292,26 @@ public class SensorWebservice {
 		if (condition) {
 			System.out.println("WahlPhase begonnen!!!");
 			electionPhase = true;
-			if(assignments.remove(koordinator)== null){// koordinator aus map entfernen
-				System.out.println("Koordinator konnte nicht entfernt werden!!!");
-			
+			//delete koordinator
+			hawsensor.SensorWebservice del = null;
+			try {
+				for (hawsensor.SensorWebservice sensor : assignments.keySet()) {
+					del = sensor;
+					sensor.getMyUrl();
+				}
+			} catch (Exception e) {
+				
+				URL koorMeterUrl = null;
+				try {
+					koorMeterUrl = new URL(baseUrlMeter, assignments.get(del));
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				HAWMeteringWebserviceService service = new HAWMeteringWebserviceService(koorMeterUrl, new QName("http://hawmetering/", "HAWMeteringWebserviceService"));
+				service.getHAWMeteringWebservicePort().setTitle("free");
+				
+				assignments.remove(del);
 			}
 			tickSeqN = 0;
 			oldTick = -1;
@@ -318,11 +336,9 @@ public class SensorWebservice {
 						setElectionPhase(true);
 						for (hawsensor.SensorWebservice sensor : assignments.keySet()) {
 							if (!assignments.get(sensor).equals(myMeter)) {
-								System.out.println("111111");
 								System.out.println(assignments.get(sensor));
 								sensor.setElectionPhase(true);// andere sensoren informieren
 							}
-							System.out.println("222222");
 
 						}
 						electionAlgo();// wahl ausloesen
